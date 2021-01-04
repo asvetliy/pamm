@@ -1,0 +1,101 @@
+{
+  "service": {
+    "log_level": "INFO",
+    "port": 8999
+  },
+  "repository": {
+    "type": "postgresql",
+    "options": {
+      "dsn": "postgresql://postgres:123qweasd@pamm_postgres:5432/pamm_service",
+      "get_limit": 1000
+    }
+  },
+  "entrypoints": [
+    {
+      "type": "kafka_consumer",
+      "options": {
+        "brokers": [
+          "kafka:9092"
+        ],
+        "threads": 2,
+        "consumer": {
+          "group_id": "pamm_service",
+          "topics": [
+            "base"
+          ],
+          "ssl": {
+            "ca": "/path/to/ca",
+            "cert": "/path/to/cert",
+            "key": "key",
+            "password": "password"
+          },
+          "sasl": {
+            "username": "username",
+            "password": "password",
+            "mechanism": "PLAIN"
+          },
+          "events": {
+            "events_params": {
+              "name_path": "event.name"
+            },
+            "events_array": {
+              "wallet.wallet_create.succeeded": {
+                "attributes": {
+                  "user_id": "event.context.wallet.user_id",
+                  "id": "event.context.wallet.id",
+                  "min_invest": "event.context.wallet.trading.managed.min_invest",
+                  "reward_percent": "event.context.wallet.trading.managed.reward_percent",
+                  "rollover_period": "event.context.wallet.trading.managed.rollover_period",
+                  "pub_stat_lag": "event.context.wallet.trading.managed.pub_stat_lag",
+                  "started_at": "event.context.wallet.trading.managed.started_at",
+                  "currency_digits": "event.context.wallet.trading.managed.currency.precision",
+                  "currency_id": "event.context.wallet.trading.managed.currency.id",
+                  "currency_code": "event.context.wallet.trading.managed.currency.code"
+                },
+                "options": {
+                  "request_object_type": "CreateAccount"
+                }
+              },
+              "wallet.transaction_create.succeeded": {
+                "attributes": {
+                  "id": "event.context.transaction.id",
+                  "recipient_id": "event.context.transaction.recipient.id",
+                  "sender_id": "event.context.transaction.sender.id",
+                  "recipient_user_id": "event.context.transaction.recipient.user_id",
+                  "sender_user_id": "event.context.transaction.sender.user_id",
+                  "amount": "event.context.transaction.sum",
+                  "type": "event.context.transaction.type.code",
+                  "currency_id": "event.context.transaction.currency.id",
+                  "currency_digit": "event.context.transaction.currency.precision"
+                },
+                "options": {
+                  "request_object_type": "CreateOrder"
+                }
+              },
+              "wallet.transaction_complete.succeeded": {
+                "attributes": {
+                  "id": "event.context.transaction.id",
+                  "recipient_id": "event.context.transaction.recipient.id",
+                  "sender_id": "event.context.transaction.sender.id",
+                  "type": "event.context.transaction.type.code"
+                },
+                "options": {
+                  "request_object_type": "ApplyOrder"
+                }
+              },
+              "wallet.shifting_process.succeeded": {
+                "attributes": {
+                  "account_id": "event.context.account.id",
+                  "last_balance": "event.context.account.balance"
+                },
+                "options": {
+                  "request_object_type": "AccountStopped"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
