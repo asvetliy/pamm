@@ -34,7 +34,7 @@
 
 **Пример:**
 
-**POST**  `api.workspace.my/pamm/accounts/status/get`
+**POST**  `api.example.com/pamm/accounts/status/get`
 
 **Body:**
 ```
